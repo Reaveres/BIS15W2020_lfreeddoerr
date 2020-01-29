@@ -1,6 +1,6 @@
 ---
 title: "Lab 1 Homework"
-author: "What is Your Name?"
+author: "Lia Freed-Doerr"
 date: "Winter 2020"
 output:
   html_document: 
@@ -27,6 +27,7 @@ Answer the following questions and complete the exercises in RMarkdown. Please e
 ## [1] 4
 ```
 
+
 ```r
 (8/2)^2
 ```
@@ -35,13 +36,11 @@ Answer the following questions and complete the exercises in RMarkdown. Please e
 ## [1] 16
 ```
 
-
 3. Make a new object `pi` as 3.14159265359.
 
 ```r
 pi <- 3.14159265359
 ```
-
 
 4. Is `pi` an integer or numeric? Why? Show your code.  
 
@@ -52,7 +51,7 @@ class(pi)
 ```
 ## [1] "numeric"
 ```
-this is numeric, it is not a whole number
+_this is numeric, it is not a whole number_
 
 5. You have decided to use your new analytical powers in R to become a professional gambler. Here are your winnings and losses this week. Note that you don't gamble on the weekends!  
 
@@ -66,7 +65,6 @@ a. Build a new vector called `days` for the days of the week.
 ```r
 days <- c("Monday", "Tuesday", "Wednesday", "Thrusday", "Friday", "Saturday", "Sunday")
 ```
-
 
 We will use `days` to name the elements in the poker and roulette vectors.
 
@@ -85,9 +83,9 @@ sum(blackjack)
 ## [1] NA
 ```
 
-
 c. What is your interpretation of this result? What do you need to do to address the problem? Recalculate how much you won or lost in blackjack over the week.  
-I first did not specify that the NA values for the weekend should be removed. I did so in the following.
+
+_I first did not specify that the NA values for the weekend should be removed. I did so in the following._
 
 
 ```r
@@ -98,9 +96,7 @@ sum(blackjack, na.rm = TRUE)
 ## [1] 310
 ```
 
-
 d. Calculate how much you won or lost in roulette over the week.  
-
 
 ```r
 sum(roulette, na.rm = TRUE)
@@ -113,12 +109,11 @@ sum(roulette, na.rm = TRUE)
 
 e. Build a `total_week` vector to show how much you lost or won on each day over the week. Which days seem lucky or unlucky for you?
 
-
 ```r
 total_week <- c(blackjack[1] + roulette[1], blackjack[2] + roulette[2], blackjack[3] + roulette[3],
                 blackjack[4] + roulette[4], blackjack[5] + roulette[5])
 ```
-It looks like Friday was our lucky day winning 250 and Thursday our least luckiest losing 420.
+_It looks like Friday was our lucky day winning 250 and Thursday our least luckiest losing 420._
 
 f. Should you stick to blackjack or roulette? Write a program that verifies this below.  
 

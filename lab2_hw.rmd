@@ -1,6 +1,6 @@
 ---
 title: "Lab 2 Homework"
-author: "Put Your Name Here"
+author: "Lia Freed-Doerr"
 date: "Winter 2020"
 output:
   html_document: 
@@ -9,7 +9,7 @@ output:
 ---
 
 ## Instructions
-Answer the following questions and complete the exercises in RMarkdown. Please embed all of your code and push your final work to our [GitHub repository](https://github.com/FRS417-DataScienceBiologists). I will randomly select a few examples of student work at the start of each session to use as examples so be sure that your code is working to the best of your ability.
+Answer the following questions and complete the exercises in RMarkdown. Please embed all of your code and push your final work to your repository. Your final lab report should be organized, clean, and run free from errors. Remember, you must remove the `#` for the included code chunks to run.  
 
 ## Load the tidyverse
 ```{r}
@@ -110,4 +110,5 @@ sleepy_friends <- subset.data.frame(sleep, sleep_total >= 18)
 sleepy_friends
 ```
 
-## Push your final code to GitHub
+## Push your final code to GitHub!
+Please be sure that you check the `keep md` file in the knit preferences.  

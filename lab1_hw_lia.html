@@ -9,7 +9,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="What is Your Name?" />
+<meta name="author" content="Lia Freed-Doerr" />
 
 
 <title>Lab 1 Homework</title>
@@ -387,7 +387,7 @@ summary {
 
 
 <h1 class="title toc-ignore">Lab 1 Homework</h1>
-<h4 class="author">What is Your Name?</h4>
+<h4 class="author">Lia Freed-Doerr</h4>
 <h4 class="date">Winter 2020</h4>
 
 </div>
@@ -420,7 +420,7 @@ summary {
 </ol>
 <pre class="r"><code>class(pi)</code></pre>
 <pre><code>## [1] &quot;numeric&quot;</code></pre>
-<p>this is numeric, it is not a whole number</p>
+<p><em>this is numeric, it is not a whole number</em></p>
 <ol start="5" style="list-style-type: decimal">
 <li>You have decided to use your new analytical powers in R to become a professional gambler. Here are your winnings and losses this week. Note that you don’t gamble on the weekends!</li>
 </ol>
@@ -439,9 +439,9 @@ names(roulette) &lt;- days</code></pre>
 <pre class="r"><code>sum(blackjack)</code></pre>
 <pre><code>## [1] NA</code></pre>
 <ol start="3" style="list-style-type: lower-alpha">
-<li>What is your interpretation of this result? What do you need to do to address the problem? Recalculate how much you won or lost in blackjack over the week.<br />
-I first did not specify that the NA values for the weekend should be removed. I did so in the following.</li>
+<li>What is your interpretation of this result? What do you need to do to address the problem? Recalculate how much you won or lost in blackjack over the week.</li>
 </ol>
+<p><em>I first did not specify that the NA values for the weekend should be removed. I did so in the following.</em></p>
 <pre class="r"><code>sum(blackjack, na.rm = TRUE)</code></pre>
 <pre><code>## [1] 310</code></pre>
 <ol start="4" style="list-style-type: lower-alpha">
@@ -454,7 +454,7 @@ I first did not specify that the NA values for the weekend should be removed. I 
 </ol>
 <pre class="r"><code>total_week &lt;- c(blackjack[1] + roulette[1], blackjack[2] + roulette[2], blackjack[3] + roulette[3],
                 blackjack[4] + roulette[4], blackjack[5] + roulette[5])</code></pre>
-<p>It looks like Friday was our lucky day winning 250 and Thursday our least luckiest losing 420.</p>
+<p><em>It looks like Friday was our lucky day winning 250 and Thursday our least luckiest losing 420.</em></p>
 <ol start="6" style="list-style-type: lower-alpha">
 <li>Should you stick to blackjack or roulette? Write a program that verifies this below.</li>
 </ol>
