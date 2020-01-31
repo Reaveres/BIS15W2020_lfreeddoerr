@@ -3,9 +3,9 @@ title: "Lab 3 Homework"
 author: "Lia Freed-Doerr"
 date: "Winter 2020"
 output:
-  html_document:
+  html_document: 
+    keep_md: yes
     theme: spacelab
-    toc: no
 ---
 
 ```{r setup, include=FALSE}
@@ -77,39 +77,66 @@ deer <- homerange %>%
   filter(family == "cervidae")
 ```
 
-7. As measured by the data, which snake species has the smallest homerange? Show all of your work, please. Look this species up online and tell me about it!  
 ```{r}
-
+deer %>% arrange(desc(log10.mass))
 ```
 
++ alces is the largest deer
+
+7. As measured by the data, which snake species has the smallest homerange? Show all of your work, please. Look this species up online and tell me about it!  
+```{r}
+snakes <- homerange %>%
+  filter(taxon == "snakes")
+snakes %>% arrange(log10.hra)
+```
++ the namaqua dwarf adder has the smallest homerange as measured by log10.hra.
++ it is the smallest venomous viper, generally between 7-10 inches, and comes from South Africa.
++ (wikipedia)
 
 8. You suspect that homerange and mass are correlated in birds. We need a ratio that facilitates exploration of this prediction. First, build a new dataframe called `hra_ratio` that is limited to genus, species, mean.mass.g, log10.mass, log10.hra. Arrange it in ascending order by mean mass in grams.  
 ```{r}
-
+hra_ratio <- homerange %>%
+  select(genus, species, taxon, mean.mass.g, log10.mass, log10.hra) %>%
+  arrange(mean.mass.g)
+hra_ratio
 ```
 
 
 9. Replace the existing `hra_ratio` dataframe with a new dataframe that adds a column calculating the ratio of log 10 hra to log 10 mass. Call it `hra.mass.ratio`. Arrange it in descending order by mean mass in grams.  
 ```{r}
-
+hra_ratio <- hra_ratio %>% 
+  mutate(hra.mass.ratio = log10.hra/log10.mass) %>%
+  arrange(desc(mean.mass.g))
+hra_ratio
 ```
 
 
 10. What is the lowest mass for birds with a `hra.mass.ratio` greater than or equal to 4.0?
 ```{r}
-
+hra_ratio %>% filter(hra.mass.ratio >= 4.0 & taxon == "birds")
 ```
-
++ the regulus regulus is the lowest mass bird with homerange >= 4
 
 11. Do a search online; what is the common name of the bird from #8 above? Place a link in your markdown file that takes us to a webpage with information on its biology.  
-```{r}
-
-```
++ this bird is known as the goldcrest
++ [Goldcrest Wikipedia](https://en.wikipedia.org/wiki/Goldcrest)
 
 12. What is the `hra.mass.ratio` for an ostrich? Show your work, please.  
 ```{r}
-
+homerange %>% filter(common.name == "ostrich") %>%
+  select(genus, species)
 ```
++ tells us genus and species of ostrich: struthio and camelus: 
++ allows selection in hra_ratio
+
+```{r}
+ratio_ostrich <- hra_ratio %>% 
+  filter(genus == "struthio" & species == "camelus") %>%
+  select(hra.mass.ratio)
+ratio_ostrich
+```
+
++ hra.mass.ratio for ostrich is 1.602565
 
 ## Push your final code to GitHub!
 Please be sure that you have check the `keep md` file in the knit preferences.  
