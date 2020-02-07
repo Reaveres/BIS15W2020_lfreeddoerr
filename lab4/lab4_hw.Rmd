@@ -4,8 +4,8 @@ author: "Lia Freed-Doerr"
 date: "2/7"
 output:
   html_document:
+    keep_md: yes
     theme: spacelab
-    toc: no
 ---
 
 ```{r setup, include=FALSE}
