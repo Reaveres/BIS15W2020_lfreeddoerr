@@ -1,7 +1,7 @@
 ---
 title: "Lab 4 Homework"
 author: "Lia Freed-Doerr"
-date: "1/31"
+date: "2/7"
 output:
   html_document:
     theme: spacelab
@@ -25,6 +25,7 @@ For this assignment we are going to work with a large dataset from the [United N
 1. Load the data `FAO_1950to2012_111914.csv` as a new object titled `fisheries`.
 ```{r}
 fisheries <- readr::read_csv("data/FAO_1950to2012_111914.csv")
+fisheries
 ```
 
 
@@ -33,19 +34,37 @@ fisheries <- readr::read_csv("data/FAO_1950to2012_111914.csv")
 ```{r}
 names(fisheries)
 ```
-+ Uh oh! The years are column names and should be variables.
++ Ah! The years are column names and should be variables.
 
 3. What is the structure of the data? Show the classes of each variable.
-
+```{r}
+lapply(fisheries, class)
+```
 
 4. Think about the classes. Will any present problems? Make any changes you think are necessary below.
++ The year variables and possibly ASFIS species # ought to be numeric, but the extra letters must be removed.
++ The other variables should be factors, not characters.
+```{r}
+fisheries <- fisheries %>% mutate_all(~str_remove_all(., " F")) %>%
+  mutate_all(str_trim) %>%
+  mutate_at(vars(starts_with("19")), as.numeric) %>% 
+  mutate_at(vars(starts_with("2")), as.numeric) %>% 
+  mutate_if(is.character, as.factor)
+fisheries
+```
+
 
 
 5. How many countries are represented in the data? Provide a count.
+```{r}
+nlevels(fisheries$Country)
+```
 
 
 6. What are the names of the countries?
-
+```{r}
+fisheries %>% count(Country)
+```
 
 7. Use `rename()` to rename the columns and make them easier to use. The new column names should be:  
 + country
@@ -56,35 +75,126 @@ names(fisheries)
 + ISSCAAP_spgroupname
 + FAO_area
 + unit
+```{r}
+fisheries <- fisheries %>% dplyr::rename(
+  country='Country',
+  commname='Common name',
+  ASFIS_sciname='ASFIS species name',
+  ASFIS_spcode='ASFIS species#',
+  ISSCAAP_spgroup='ISSCAAP group#',
+  ISSCAAP_spgroupname='ISSCAAP taxonomic group'
+)
+fisheries
+```
+
 
 8. Are these data tidy? Why or why not, and, how do you know? Use the appropriate pivot function to tidy the data. Remove the NA's. Put the tidy data frame into a new object `fisheries_tidy`.  
++ These data are not tidy! Look at all those columns as years, which should just be another variable.
+```{r}
+fisheries_tidy <- fisheries %>%
+  pivot_longer('1950':'2012',
+               names_to = "year",
+               values_to = "catch",
+               values_drop_na = TRUE
+               )
+fisheries_tidy
+```
+
 
 
 9. Refocus the data only to include country, ISSCAAP_spgroupname, ASFIS_spcode, ASFIS_sciname, year, and catch.
+```{r}
+fisheries_tidy2 <- select(fisheries_tidy, country, ISSCAAP_spgroupname, ASFIS_spcode, ASFIS_sciname, year, catch)
+fisheries_tidy2
+```
 
 
 10. Re-check the classes of `fisheries_tidy2`. Notice that "catch" is shown as a character! This is a problem because we will want to treat it as a numeric. How will you deal with this?
+```{r}
+fisheries_tidy2 <- fisheries_tidy2 %>%
+  mutate_at("catch", as.numeric)
+fisheries_tidy2
+```
 
 
 11. Based on the ASFIS_spcode, how many distinct taxa were caught as part of these data?
+```{r}
+nlevels(fisheries_tidy2$ASFIS_spcode)
+```
 
 
 12. Which country had the largest overall catch in the year 2000?
-
+```{r}
+fisheries_tidy2 %>% filter(year == "2000") %>%
+  group_by(country) %>%
+  summarise(max_catch = max(catch)) %>%
+  arrange(desc(max_catch)) %>%
+  head(1)
+```
 
 13. Which country caught the most sardines (_Sardina_) between the years 1990-2000?
-
+```{r}
+fisheries_tidy2 %>%
+  filter(year >= 1990, year <= 2000) %>%
+  filter(grepl('Sardina', ASFIS_sciname)) %>%
+  group_by(country) %>%
+  summarise(max_sardines = max(catch)) %>%
+  arrange(desc(max_sardines)) %>%
+  head(1)
+```
 
 14. Which five countries caught the most cephalopods between 2008-2012?
+```{r}
+levels(fisheries_tidy2$ISSCAAP_spgroupname)
+```
 
 
-15. Given the top five countries from question 12 above, which species was the highest catch total? The lowest?
+```{r}
+fisheries_tidy2 %>% 
+  filter(grepl('Squids', ISSCAAP_spgroupname)) %>% 
+  filter(year <= 2012 & year >= 2008) %>% 
+  group_by(country) %>% 
+  summarise(catch = sum(catch)) %>% 
+  arrange(desc(catch)) %>%
+  head(5)
+```
 
+
+15. Given the top five countries from question (14) above, which species was the highest catch total? The lowest?
+```{r}
+ceph_catch <- 
+  fisheries_tidy2 %>% 
+  filter(grepl('Squids', ISSCAAP_spgroupname)) %>% 
+  filter(year>=2008 & year<=2012) %>% 
+  group_by(ASFIS_sciname) %>% 
+  summarize(catch_total=sum(catch, na.rm=T)) %>% 
+  arrange((catch_total))
+```
+
+```{r}
+first(ceph_catch$ASFIS_sciname)
+```
+
+```{r}
+last(ceph_catch$ASFIS_sciname)
+```
 
 16. In some cases, the taxonomy of the fish being caught is unclear. Make a new data frame called `coastal_fish` that shows the taxonomic composition of "Miscellaneous coastal fishes" within the ISSCAAP_spgroupname column.
-
+```{r}
+coastal_fish <-
+  fisheries_tidy2 %>%
+  filter(ISSCAAP_spgroupname == "Miscellaneous coastal fishes")
+levels(coastal_fish$ASFIS_sciname)
+```
 
 17. Use the data to do at least one exploratory analysis of your choice. What can you learn?
++ I'm curious--what proportion of the data recorded is labelled 'Miscellaneous'?
+```{r}
+fisheries_tidy2 %>%
+  filter(grepl('Miscellaneous', ISSCAAP_spgroupname)) %>%
+  nrow()/nrow(fisheries_tidy2)
+```
+
 
 ## Push your final code to GitHub!
 Please be sure that you check the `keep md` file in the knit preferences.   
