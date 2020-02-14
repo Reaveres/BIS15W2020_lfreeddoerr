@@ -176,14 +176,51 @@ amphibio
 
 ```{r}
 amphibio %>%
-  group_by(Fos, Ter, Aqu, Arb) %>%
-  summarise(n_distinct_species = n_distinct(Species))
+  pivot_longer(
+    c(Fos, Ter, Aqu, Arb),
+    names_to = "State",
+    values_to = "State_bool"
+  ) %>%
+  group_by(State) %>%
+  summarise(num_species = sum(State_bool, na.rm = TRUE))
 ```
 
+```{r}
+amphibio %>%
+  pivot_longer(
+    c(Fos, Ter, Aqu, Arb),
+    names_to = "State",
+    values_to = "State_bool"
+  ) %>%
+  group_by(State) %>%
+  summarise(num_species = sum(State_bool, na.rm = TRUE)) %>%
+  ggplot(aes(x = State, y = num_species)) +
+  geom_bar(stat = "identity")
+```
 
 **10. For the amphibio data, we are interested to know if body size is correlated with litter size? Make a plot that shows this relationship. You should notice that there are outliers. Can you think of a way to identify the outliers for both body size and litter size? What happens when you then re-plot the data?**
 ```{r}
-
+amphibio2 <- amphibio %>%
+  pivot_longer(
+    c(Litter_size_min_n, Litter_size_max_n),
+    names_to = "Litter_size_type",
+    values_to = "Litter_size"
+  ) %>%
+  pivot_longer(
+    c(Offspring_size_max_mm, Offspring_size_min_mm),
+    names_to = "Offspring_size_type",
+    values_to = "Offspring_size"
+  )
+ggplot(amphibio2, aes(x = Litter_size, y = Offspring_size)) +
+  geom_point(na.rm = T)
+```
++ It looks like anything past 500 for litter size or 5 for offspring size is an outlier.
+```{r}
+amphibio3 <- amphibio2 %>%
+  filter(Offspring_size < 5, Litter_size < 500)
+ggplot(amphibio3, aes(x = Litter_size, y = Offspring_size)) +
+  geom_jitter(na.rm = TRUE) +
+  geom_smooth(method=lm, se=T)
 ```
 
 
