@@ -1,0 +1,47 @@
+---
+title: "Project"
+author: "Lia Freed-Doerr"
+date: "February 20, 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(naniar)
+```
+
+```{r}
+cdc <- readr::read_csv("cdc-113-ICD10.csv")
+```
+
+```{r}
+clean_cdc <- cdc %>% 
+  select(-c("State Code", "Year Code", "Ten-Year Age Groups", "Notes")) %>%
+  na.omit() %>%
+  na_if("Unreliable") %>%
+  rename(crude_rate= "Crude Rate", 
+         state= "State", 
+         year= "Year",
+         age_groups= "Ten-Year Age Groups Code", 
+         cause_of_death= "ICD-10 113 Cause List",
+         cause_of_death_code= "ICD-10 113 Cause List Code", 
+         deaths= "Deaths", 
+         population= "Population")
+```
+
+```{r}
+clean_cdc %>% miss_var_summary
+```
+
+To do:
+Get rid of hashtags, transform data to make code at end a separate column?
+Frequency of deaths per each disease (compared to total cases disease, total deaths)
+Explore: how many deaths reported per population?
+Create a new crude rate column per 100,000
+Look at different age groups, rate of deaths (Also would be a nice graph)
+Across different states difference in deaths by certain diseases 
+The rates of death by certain preventable illnesses--increasing or decreasing? (Graph)
