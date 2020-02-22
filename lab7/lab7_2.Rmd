@@ -21,6 +21,9 @@ knitr::opts_chunk$set(
 library("tidyverse")
 library("shiny")
 library("naniar")
+
+#install.packages("shinydashboard")
+library("shinydashboard")
 ```
 
 ## Learning Goals
@@ -52,7 +55,7 @@ ui <- fluidPage(
 )
 
 server <- function(input, output, session) {
-  session$onSessionEnded(stopApp)
+  session$onSessionEnded(stopApp) # will stop an error message from appearing when web browser closes
   output$plot <- renderPlot({
   ggplot(iris, aes_string(x = input$x, y = input$y, col = "Species")) + geom_point() + theme_light(base_size = 18)
   })
@@ -70,7 +73,7 @@ ui <- fluidPage(
   
   selectInput("x", "Select X Variable", choices = c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width"), 
               selected = "Petal.Width"),
-  selectInput("y", "Select Y Variable", choices = c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width"),
+  selectInput("y", "Select Y Variable", choices = c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width`"),
               selected = "Petal.Length"),
   sliderInput("fontsize", "Select the Font Size", min = 10, max = 24, value = 18, step = 1),
   plotOutput("plot", width = "500px", height = "400px")
@@ -108,7 +111,9 @@ ui <- dashboardPage(
   dashboardBody()
 )
 
-server <- function(input, output) { }
+server <- function(input, output) { 
+  session$onSessionEnded(stopApp)
+  }
 
 shinyApp(ui, server)
 ```
@@ -122,7 +127,11 @@ ui <- dashboardPage(
   dashboardBody()
 )
 
-server <- function(input, output) { }
+server <- function(input, output) { 
+  
+  session$onSessionEnded(stopApp)
+  
+  }
 
 shinyApp(ui, server)
 ```
@@ -241,7 +250,54 @@ Reference: Koerner SE, Poulsen JR, Blanchard EJ, Okouyi J, Clark CJ. Vertebrate 
 gabon <- readr::read_csv("data/IvindoData_DryadVersion.csv")
 ```
 
+```{r}
+names(gabon)
+```
+
+```{r}
+gabon
+```
+
+
 2. Build an app that re-creates the plots shown on page 810 of this paper. It compares the relative abundance % to the distance from villages in rural Gabon. Use shiny dashboard and add aesthetics to the plot.  
+
+```{r}
+ui <- dashboardPage(
+  dashboardHeader(title = "Plot Relative Abundance App"),
+  dashboardSidebar(),
+  dashboardBody(
+  fluidRow(
+  box(title = "Plot Options", width = 3,
+  selectInput("y", "Select Y Variable", choices = c("RA_Birds", "RA_Monkeys", "RA_Apes", "RA_Elephant", "RA_Ungulate", "RA_Rodent"),
+              selected = "Birds")
+  ), # close the first box
+  box(title = "Plot of Relative Abundance Data", width = 7,
+  plotOutput("plot", width = "600px", height = "500px"),
+  hr(),
+  helpText("Koerner et al.  Vertebrate community composition and diversity declines along a defaunation gradient radiating from rural villages in Gabon. Journal of Applied Ecology. 2016")
+  ) # close the second box
+  ) # close the row
+  ) # close the dashboard body
+) # close the ui
+
+server <- function(input, output, session) { 
+  
+  # the code to make the plot of iris data grouped by species
+  output$plot <- renderPlot({
+    ggplot(gabon, aes_string(x = "Distance", y = input$y)) + 
+      geom_point() + 
+      geom_smooth(method=lm, se=T) +
+      ggtitle(paste(input$y), " by distance") +
+      theme_light(base_size = 18)
+  })
+  
+  # stop the app when we close it
+  session$onSessionEnded(stopApp)
+
+  }
+
+shinyApp(ui, server)
+```
 
 
 ## That's it, let's take a break!   
