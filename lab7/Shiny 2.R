@@ -4,7 +4,8 @@ library(shinydashboard)
 
 UC_admit <- readr::read_csv("data/UC_admit.csv")
 
-UC_admit2 <- UC_admit %>% mutate(Academic_Yr = as_factor(Academic_Yr))
+UC_admit2 <- UC_admit %>% mutate(Academic_Yr = as_factor(Academic_Yr)) %>%
+  filter(Ethnicity!="All")
 
 ui <- 
   dashboardPage(

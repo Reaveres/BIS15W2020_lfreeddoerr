@@ -12,9 +12,11 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r message=FALSE, warning=FALSE}
 library(tidyverse)
 library(naniar)
+library(shiny)
+library(shinydashboard)
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 cdc <- readr::read_csv("cdc-113-ICD10.csv")
 ```
 
@@ -31,17 +33,70 @@ clean_cdc <- cdc %>%
          cause_of_death_code= "ICD-10 113 Cause List Code", 
          deaths= "Deaths", 
          population= "Population")
+clean_cdc
 ```
 
 ```{r}
 clean_cdc %>% miss_var_summary
 ```
 
+Get rid of hashtags
+
+```{r}
+new_cause_of_death <- str_remove(clean_cdc$cause_of_death, "#")
+clean_cdc2 <- clean_cdc %>%
+  mutate(cause_of_death = new_cause_of_death) %>%
+  mutate(state = as.factor(state))
+clean_cdc2
+```
+
+This doesn't work yet!
+
+```{r}
+ui <- dashboardPage(
+  dashboardHeader(title = "Number Deaths in CDC"),
+  dashboardSidebar(),
+  dashboardBody(
+  fluidRow(
+  box(title = "Plot Options", width = 3,
+  radioButtons("yr", "Select Year", choices = c("2000", "2001", "2002", "2003", "2004", "2005", "2006", "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018"), 
+              selected = "2000"),
+  selectInput("st", "Select State", choices = c(levels(clean_cdc2$state)),
+              selected = "Arizona"),
+#  selectInput("z", "Select Admit Category", choices = c("Applicants", #"Admits", "Enrollees"),
+#              selected = "Applicants")
+  ), # close the first box
+  box(title = "CDC Deaths", width = 7,
+  plotOutput("plot", width = "600px", height = "500px")
+  ) # close the second box
+  ) # close the row
+  ) # close the dashboard body
+) # close the ui
+server <- function(input, output, session) { 
+  
+  output$plot <- renderPlot({
+    clean_cdc2 %>% 
+    filter(year==input$yr & state ==input$st) %>% 
+    ggplot(aes(x=cause_of_death, y=deaths)) + 
+      geom_col(color="black", fill="steelblue", alpha=0.75) +
+      theme_light(base_size = 18) +
+      theme(axis.text.x = element_text(angle = 60, hjust = 1))+
+      labs(x = "Cause_of_Death", y = "Number")
+  })
+  
+  # stop the app when we close it
+  session$onSessionEnded(stopApp)
+  }
+shinyApp(ui, server)
+```
+
 To do:
-Get rid of hashtags, transform data to make code at end a separate column?
+Transform data to make code at end a separate column? What did I mean when I wrote this
 Frequency of deaths per each disease (compared to total cases disease, total deaths)
 Explore: how many deaths reported per population?
 Create a new crude rate column per 100,000
 Look at different age groups, rate of deaths (Also would be a nice graph)
 Across different states difference in deaths by certain diseases 
 The rates of death by certain preventable illnesses--increasing or decreasing? (Graph)
+
+Make a shiny
