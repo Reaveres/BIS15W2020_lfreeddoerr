@@ -77,7 +77,7 @@ ui <- dashboardPage(
   fluidRow(
   box(title = "Plot Options", width = 3,
   selectInput("death", "Select Cause of Death", choices = c(levels(cdc$cause_of_death)),
-              selected = "Falls (W00-W19)"),
+              selected = "Falls (W00-W19)")
   ), # close the first box
   box(title = "CDC Deaths", width = 7,
   plotOutput("plot", width = "800px", height = "500px")
