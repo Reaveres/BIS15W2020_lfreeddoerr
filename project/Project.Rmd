@@ -108,13 +108,65 @@ server <- function(input, output, session) {
 shinyApp(ui, server)
 ```
 
+```{r}
+cdc %>%
+  filter(year == "1999" & cause_of_death == "Tuberculosis (A16-A19)") %>%
+  group_by(race) %>%
+  summarise(population = sum(population, na.rm = T),
+            total_deaths = sum(deaths),
+            percent= (total_deaths/population)*100) %>%
+  ggplot(aes_string(x = "race", y = "percent", fill = "race")) +
+           geom_col(position = "dodge") +
+  coord_flip()
+```
+
+Expanded into shiny...
+
+```{r}
+ui <- dashboardPage(
+  dashboardHeader(title = "Number Deaths in CDC"),
+  dashboardSidebar(),
+  dashboardBody(
+  fluidRow(
+  box(title = "Plot Options", width = 3,
+  selectInput("death", "Select Cause of Death", choices = c(levels(cdc$cause_of_death)),
+              selected = "Falls (W00-W19)"),
+  radioButtons("year", "Select Year", choices = c(levels(cdc$year)),
+            selected = "1999")
+  ), # close the first box
+  box(title = "CDC Deaths", width = 7,
+  plotOutput("plot", width = "800px", height = "500px")
+  ) # close the second box
+  ) # close the row
+  ) # close the dashboard body
+) # close the ui
+server <- function(input, output, session) { 
+  
+  output$plot <- renderPlot({
+    cdc %>% 
+    filter(cause_of_death ==input$death & year == input$year) %>% 
+    group_by(race) %>%
+  summarise(population = sum(population, na.rm = T),
+            total_deaths = sum(deaths),
+            per100k = (total_deaths/population)*100000) %>%
+  ggplot(aes_string(x = "race", y = "per100k", fill = "race")) +
+      geom_col(position = "dodge") +
+      coord_flip()+
+      labs(title="Deaths in The United States", y="Deaths per 100k", x="Race")+
+      theme_light(base_size = 18) +
+      theme(axis.text.x = element_text(angle = 0, hjust = 1))
+  })
+  
+  # stop the app when we close it
+  session$onSessionEnded(stopApp)
+}  
+shinyApp(ui, server)
+```
+
 To do:
 Transform data to make code at end a separate column? What did I mean when I wrote this
 Frequency of deaths per each disease (compared to total cases disease, total deaths)
 Explore: how many deaths reported per population?
 Create a new crude rate column per 100,000
 Look at different age groups, rate of deaths (Also would be a nice graph)
-Across different states difference in deaths by certain diseases 
 The rates of death by certain preventable illnesses--increasing or decreasing? (Graph)
-
-Make a shiny
