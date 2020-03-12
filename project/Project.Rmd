@@ -5,6 +5,8 @@ date: "February 20, 2020"
 output: html_document
 ---
 
+## This is a workshop. For the finished project, check out CDC-Data-Visualizer.
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -162,6 +164,98 @@ server <- function(input, output, session) {
 }  
 shinyApp(ui, server)
 ```
+
+```{r}
+females <- cdc %>%
+  filter(cause_of_death == "Falls (W00-W19)", gender == "Female") %>% 
+  group_by(year) %>% 
+  summarise(
+    population = sum(population, na.rm=T),
+    total_deaths = sum(deaths),
+    percent= (total_deaths/population)*100
+  )
+males <- cdc %>%
+  filter(cause_of_death == "Falls (W00-W19)", gender == "Male") %>% 
+  group_by(year) %>% 
+  summarise(
+    population = sum(population, na.rm=T),
+    total_deaths = sum(deaths),
+    percent= (total_deaths/population)*100
+    )
+ggplot() + 
+  geom_line(aes(x = year, y = percent), color = "blue") +
+  geom_line(aes(x = year, y = percent), color = "red") +
+  xlab('Year') +
+  ylab('Percent')
+```
+
+```{r}
+cdc %>% 
+  filter(cause_of_death == "Falls (W00-W19)") %>% 
+  group_by(gender, year) %>%
+  summarise(
+    population = sum(population, na.rm=T),
+    #In the Data, N.S. age groups included in the population of all existing age groups. So it is OK to remove the NA values because it will product the same result.
+    total_deaths = sum(deaths),
+    percent= (total_deaths/population)*100
+    ) %>% 
+  ggplot(aes(x=year, y=percent))+
+  geom_line(aes(color=gender, linetype=gender))
+```
+
+```{r}
+cdc %>% 
+  filter(cause_of_death == "Falls (W00-W19)") %>% 
+  group_by(gender, year) %>%
+  summarise(
+    population = sum(population, na.rm=T),
+    total_deaths = sum(deaths),
+    percent= (total_deaths/population)*100
+    ) %>%
+  ggplot(aes(x = year, y =percent, color = gender)) +
+  geom_point()
+```
+
+```{r}
+ui <- dashboardPage(
+  dashboardHeader(title = "Number Deaths in CDC by Gender"),
+  dashboardSidebar(),
+  dashboardBody(
+  fluidRow(
+  box(title = "Plot Options", width = 3,
+  selectInput("death", "Select Cause of Death", choices = c(levels(cdc$cause_of_death)),
+              selected = "Falls (W00-W19)")
+  ), # close the first box
+  box(title = "CDC Deaths", width = 7,
+  plotOutput("plot", width = "800px", height = "500px")
+  ) # close the second box
+  ) # close the row
+  ) # close the dashboard body
+) # close the ui
+server <- function(input, output, session) { 
+  
+  output$plot <- renderPlot({
+    cdc %>% 
+    filter(cause_of_death == input$death) %>% 
+  group_by(gender, year) %>%
+  summarise(
+    population = sum(population, na.rm=T),
+    total_deaths = sum(deaths),
+    percent= (total_deaths/population)*100
+    ) %>%
+  ggplot(aes(x = year, y =percent, color = gender)) +
+    geom_point()+
+      labs(title="Deaths in The United States by Gender", y="Percent of Population", x="Year")+
+      theme_light(base_size = 18) +
+      theme(axis.text.x = element_text(angle = 0, hjust = 1))
+  })
+  
+  # stop the app when we close it
+  session$onSessionEnded(stopApp)
+}  
+shinyApp(ui, server)
+```
+
 
 To do:
 Transform data to make code at end a separate column? What did I mean when I wrote this
