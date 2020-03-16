@@ -18,6 +18,8 @@ knitr::opts_chunk$set(
 ## Libraries  
 
 ```{r}
+#install.packages("seqinr")
+#install.packages("ape")
 library("seqinr")
 library("ape")
 ```
